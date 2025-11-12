@@ -1,6 +1,5 @@
 import 'package:carte_app/data/constants.dart';
 import 'package:carte_app/views/widgets/widget_allergen_controller.dart';
-import 'package:carte_app/views/widgets/widget_horizontal_bar.dart';
 import 'package:carte_app/views/widgets/widget_page_title.dart';
 import 'package:carte_app/views/widgets/widget_text_input.dart';
 import 'package:flutter/material.dart';
