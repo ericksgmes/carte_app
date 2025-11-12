@@ -23,11 +23,21 @@ class WidgetTextInput extends StatelessWidget {
       children: [
         Text(
           inputName,
-          style: TextStyle(fontSize: 18, color: Color(0xFF1E1E1E)),
+          style: TextStyle(
+            fontSize: 18,
+            color: Color(0xFF1E1E1E),
+            fontFamily: KFont.fontFamilyContent,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
+          style: const TextStyle(
+            fontFamily: KFont.fontFamilyContent,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
           decoration: InputDecoration(
             filled: true,
             fillColor: bg,
@@ -47,6 +57,10 @@ class WidgetTextInput extends StatelessWidget {
               borderSide: const BorderSide(color: primary, width: 1.2),
             ),
             hintText: hintText,
+            hintStyle: TextStyle(
+              fontFamily: KFont.fontFamilyContent,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],

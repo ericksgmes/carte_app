@@ -134,7 +134,7 @@ class _WidgetAllergenControllerState extends State<WidgetAllergenController> {
                       return InputChip(
                         avatar: Icon(
                           _iconForAllergen(a),
-                          size: 18,
+                          size: 20,
                           color: isSelected ? Colors.black : Colors.grey[700],
                         ),
                         label: Text(
@@ -143,6 +143,10 @@ class _WidgetAllergenControllerState extends State<WidgetAllergenController> {
                             color: Colors.black.withValues(
                               alpha: isSelected ? 1.0 : 0.7,
                             ),
+                            fontFamily: KFont.fontFamilyContent,
+                            fontWeight: isSelected
+                                ? FontWeight.w800
+                                : FontWeight.w700,
                           ),
                         ),
                         selected: isSelected,
