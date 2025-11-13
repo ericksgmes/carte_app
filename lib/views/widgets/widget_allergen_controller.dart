@@ -142,7 +142,7 @@ class _WidgetAllergenControllerState extends State<WidgetAllergenController> {
                             color: Colors.black.withValues(
                               alpha: isSelected ? 1.0 : 0.7,
                             ),
-                            fontFamily: KFont.fontFamilyContentBold,
+                            fontFamily: KFont.fontFamilyContentMedium,
                             fontWeight: isSelected
                                 ? FontWeight.w800
                                 : FontWeight.w700,

@@ -11,7 +11,7 @@ class WidgetMultilineTextInput extends StatelessWidget {
     super.key,
     required this.controller,
     this.label = "Describe in simple words\nwhat you’ve eaten",
-    this.hint = "Rice, carrots and chicken",
+    this.hint = "Rice, carrots and chicken...",
     required this.onMicPressed,
   });
 
@@ -23,7 +23,7 @@ class WidgetMultilineTextInput extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontFamily: KFont.fontFamilyContentBold,
+            fontFamily: KFont.fontFamilyContentMedium,
             fontSize: 16,
           ),
         ),
@@ -53,7 +53,7 @@ class WidgetMultilineTextInput extends StatelessWidget {
                 ),
                 scrollPhysics: BouncingScrollPhysics(),
                 style: const TextStyle(
-                  fontFamily: KFont.fontFamilyContentBold,
+                  fontFamily: KFont.fontFamilyContentMedium,
                   fontSize: 14,
                 ),
               ),

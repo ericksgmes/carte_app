@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                           inputName: '',
                           hintText: 'Name',
                           hintStyle: TextStyle(
-                            fontFamily: KFont.fontFamilyContentBold,
+                            fontFamily: KFont.fontFamilyContentMedium,
                           ),
                         ),
 
@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                           inputName: '',
                           hintText: 'Email',
                           hintStyle: TextStyle(
-                            fontFamily: KFont.fontFamilyContentBold,
+                            fontFamily: KFont.fontFamilyContentMedium,
                           ),
                         ),
                         const SizedBox(height: 24),

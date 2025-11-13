@@ -28,14 +28,14 @@ class WidgetTextInput extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             color: Color(0xFF1E1E1E),
-            fontFamily: KFont.fontFamilyContentBold,
+            fontFamily: KFont.fontFamilyContentMedium,
           ),
         ),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
           style: const TextStyle(
-            fontFamily: KFont.fontFamilyContentBold,
+            fontFamily: KFont.fontFamilyContentMedium,
             fontSize: 16,
           ),
           decoration: InputDecoration(
@@ -58,7 +58,8 @@ class WidgetTextInput extends StatelessWidget {
             ),
             hintText: hintText,
             hintStyle:
-                hintStyle ?? TextStyle(fontFamily: KFont.fontFamilyContentBold),
+                hintStyle ??
+                TextStyle(fontFamily: KFont.fontFamilyContentMedium),
           ),
         ),
       ],
