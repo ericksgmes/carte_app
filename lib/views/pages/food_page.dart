@@ -26,7 +26,7 @@ class _AddFoodState extends State<AddFood> {
     const primary = KColors.mediumBlue;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -69,12 +69,11 @@ class _AddFoodState extends State<AddFood> {
                 style: TextStyle(
                   color: bg,
                   fontSize: 20,
-                  fontWeight: FontWeight.w600,
+                  fontFamily: KFont.fontFamilyContentBold,
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 80), // respiro acima da navbar
+          ), // respiro acima da navbar
         ],
       ),
     );

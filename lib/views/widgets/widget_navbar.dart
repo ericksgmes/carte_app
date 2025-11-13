@@ -29,7 +29,7 @@ class WidgetNavbar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _NavIcon(
-                icon: Icons.home_outlined,
+                icon: Icons.dinner_dining_outlined,
                 selected: index == 0,
                 onTap: () => selectedPageNotifier.value = 0,
               ),
@@ -39,7 +39,7 @@ class WidgetNavbar extends StatelessWidget {
                 onTap: () => selectedPageNotifier.value = 1,
               ),
               _NavIcon(
-                icon: Icons.add_box_outlined,
+                icon: Icons.lunch_dining_outlined,
                 selected: index == 2,
                 onTap: () => selectedPageNotifier.value = 2,
               ),
