@@ -1,3 +1,4 @@
+import 'package:carte_app/views/widget_tree.dart';
 import 'package:carte_app/views/widgets/widget_horizontal_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:carte_app/data/constants.dart';
@@ -82,14 +83,14 @@ class _LoginPageState extends State<LoginPage> {
                         Container(
                           padding: EdgeInsets.fromLTRB(60, 0, 60, 0),
                           child: WidgetHorizontalBar(
-                            primaryColor: KColors.primaryColor,
+                            primaryColor: KColors.mediumBlue,
                           ),
                         ),
 
                         WidgetTextInput(
                           controller: _nameCtrl,
                           inputName: '',
-                          hintText: 'name',
+                          hintText: 'Name',
                           hintStyle: TextStyle(
                             fontFamily: KFont.fontFamilyContentBold,
                           ),
@@ -98,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                         WidgetTextInput(
                           controller: _emailCtrl,
                           inputName: '',
-                          hintText: 'email',
+                          hintText: 'Email',
                           hintStyle: TextStyle(
                             fontFamily: KFont.fontFamilyContentBold,
                           ),
@@ -109,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                           height: 60,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: KColors.primaryColor,
+                              backgroundColor: KColors.mediumBlue,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -138,7 +139,17 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _onSubmit() {}
+  void _onSubmit() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return WidgetTree();
+        },
+      ),
+      (route) => false,
+    );
+  }
 }
 
 class _BlueBackground extends StatelessWidget {
@@ -151,9 +162,9 @@ class _BlueBackground extends StatelessWidget {
 }
 
 class _BlueBackgroundPainter extends CustomPainter {
-  final Color navy = const Color(0xFF1F3A5F);
-  final Color midBlue = const Color(0xFF659AB9);
-  final Color lightBlue = const Color(0xFFBFD7ED);
+  final Color navy = KColors.darkBlue;
+  final Color midBlue = KColors.mediumBlue;
+  final Color lightBlue = KColors.lightBlue;
 
   @override
   void paint(Canvas canvas, Size size) {

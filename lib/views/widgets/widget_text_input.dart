@@ -18,7 +18,7 @@ class WidgetTextInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const bg = KColors.baseBg;
-    const primary = Color(0xFF659AB9);
+    const primary = KColors.mediumBlue;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,16 +29,14 @@ class WidgetTextInput extends StatelessWidget {
             fontSize: 18,
             color: Color(0xFF1E1E1E),
             fontFamily: KFont.fontFamilyContent,
-            fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
           style: const TextStyle(
-            fontFamily: KFont.fontFamilyContent,
+            fontFamily: KFont.fontFamilyContentBold,
             fontSize: 16,
-            fontWeight: FontWeight.w700,
           ),
           decoration: InputDecoration(
             filled: true,
@@ -60,11 +58,7 @@ class WidgetTextInput extends StatelessWidget {
             ),
             hintText: hintText,
             hintStyle:
-                hintStyle ??
-                TextStyle(
-                  fontFamily: KFont.fontFamilyContent,
-                  fontWeight: FontWeight.w900,
-                ),
+                hintStyle ?? TextStyle(fontFamily: KFont.fontFamilyContent),
           ),
         ),
       ],

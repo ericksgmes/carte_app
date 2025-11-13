@@ -23,7 +23,7 @@ class _AddFoodState extends State<AddFood> {
   @override
   Widget build(BuildContext context) {
     const bg = KColors.baseBg;
-    const primary = KColors.primaryColor;
+    const primary = KColors.mediumBlue;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),

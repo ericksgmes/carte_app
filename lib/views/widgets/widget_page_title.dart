@@ -21,7 +21,7 @@ class WidgetPageTitle extends StatelessWidget {
             ),
           ),
         ),
-        WidgetHorizontalBar(primaryColor: KColors.primaryColor),
+        WidgetHorizontalBar(primaryColor: KColors.mediumBlue),
         const SizedBox(height: 28),
       ],
     );
