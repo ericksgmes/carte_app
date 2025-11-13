@@ -116,8 +116,8 @@ class _LoginPageState extends State<LoginPage> {
                               'Enter',
                               style: TextStyle(
                                 color: KColors.baseBg,
-                                fontSize: 20,
-                                fontFamily: KFont.fontFamilyContentBold,
+                                fontSize: KFont.fontSizeButton,
+                                fontFamily: KFont.fontFamilyButton,
                               ),
                             ),
                           ),

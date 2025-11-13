@@ -68,8 +68,8 @@ class _AddFoodState extends State<AddFood> {
                 'Add',
                 style: TextStyle(
                   color: bg,
-                  fontSize: 20,
-                  fontFamily: KFont.fontFamilyContentBold,
+                  fontSize: KFont.fontSizeButton,
+                  fontFamily: KFont.fontFamilyButton,
                 ),
               ),
             ),
