@@ -85,7 +85,10 @@ flutter:
           style: italic
     - family: Montserrat_Bold
       fonts:
-        - asset: fonts/Montserrat-ExtraBold.ttf
+        - asset: fonts/Montserrat-SemiBold.ttf
+    - family: Montserrat_Medium
+      fonts:
+        - asset: fonts/Montserrat-Medium.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
