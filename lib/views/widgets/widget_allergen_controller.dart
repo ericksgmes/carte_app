@@ -1,4 +1,3 @@
-// import 'package:carte_app/data/classes/allergens.dart';
 import 'package:carte_app/data/constants.dart';
 import 'package:carte_app/data/notifiers.dart';
 import 'package:flutter/material.dart';
@@ -143,7 +142,7 @@ class _WidgetAllergenControllerState extends State<WidgetAllergenController> {
                             color: Colors.black.withValues(
                               alpha: isSelected ? 1.0 : 0.7,
                             ),
-                            fontFamily: KFont.fontFamilyContent,
+                            fontFamily: KFont.fontFamilyContentBold,
                             fontWeight: isSelected
                                 ? FontWeight.w800
                                 : FontWeight.w700,

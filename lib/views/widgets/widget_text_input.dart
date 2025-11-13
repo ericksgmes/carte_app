@@ -28,7 +28,7 @@ class WidgetTextInput extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             color: Color(0xFF1E1E1E),
-            fontFamily: KFont.fontFamilyContent,
+            fontFamily: KFont.fontFamilyContentBold,
           ),
         ),
         const SizedBox(height: 8),
@@ -58,7 +58,7 @@ class WidgetTextInput extends StatelessWidget {
             ),
             hintText: hintText,
             hintStyle:
-                hintStyle ?? TextStyle(fontFamily: KFont.fontFamilyContent),
+                hintStyle ?? TextStyle(fontFamily: KFont.fontFamilyContentBold),
           ),
         ),
       ],

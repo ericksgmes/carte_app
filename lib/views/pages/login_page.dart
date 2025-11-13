@@ -2,7 +2,6 @@ import 'package:carte_app/views/widget_tree.dart';
 import 'package:carte_app/views/widgets/widget_horizontal_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:carte_app/data/constants.dart';
-import 'package:carte_app/views/widgets/widget_page_title.dart';
 import 'package:carte_app/views/widgets/widget_text_input.dart';
 
 class LoginPage extends StatefulWidget {
@@ -28,10 +27,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final Color lightBlue = const Color(0xFFBFD7ED);
-
-    final screen = MediaQuery.sizeOf(context);
-    final maxW = screen.width * 0.8;
-    final targetW = maxW > 440 ? 440.0 : maxW;
 
     return Scaffold(
       backgroundColor: lightBlue,
