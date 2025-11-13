@@ -1,6 +1,7 @@
+import 'package:carte_app/data/constants.dart';
+import 'package:carte_app/views/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:carte_app/data/notifiers.dart';
-import 'package:carte_app/views/widget_tree.dart';
 
 void main() {
   runApp(const CarteApp());
@@ -19,7 +20,7 @@ class CarteApp extends StatelessWidget {
         final theme = ThemeData(
           brightness: isDark ? Brightness.dark : Brightness.light,
           scaffoldBackgroundColor: isDark ? Colors.black : baseBg,
-          fontFamily: 'Montserrat',
+          fontFamily: KFont.fontFamilyContent,
           appBarTheme: AppBarTheme(
             backgroundColor: isDark ? Colors.black : baseBg,
             elevation: 0,
@@ -32,7 +33,7 @@ class CarteApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: theme,
-          home: const WidgetTree(),
+          home: const LoginPage(),
         );
       },
     );

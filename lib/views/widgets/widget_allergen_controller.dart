@@ -1,4 +1,4 @@
-import 'package:carte_app/data/classes/allergens.dart';
+// import 'package:carte_app/data/classes/allergens.dart';
 import 'package:carte_app/data/constants.dart';
 import 'package:carte_app/data/notifiers.dart';
 import 'package:flutter/material.dart';
@@ -12,42 +12,42 @@ class WidgetAllergenController extends StatefulWidget {
 }
 
 class _WidgetAllergenControllerState extends State<WidgetAllergenController> {
-  bool _loading = false;
-  String? _error;
+  // // bool _loading = false;
+  // // String? _error;
 
-  @override
-  void initState() {
-    super.initState();
-    _ensureLoaded();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _ensureLoaded();
+  // }
 
-  Future<void> _ensureLoaded() async {
-    // Se já carregou antes, não chama de novo
-    if (allergensNotifier.value.isNotEmpty) return;
+  // Future<void> _ensureLoaded() async {
+  //   // Se já carregou antes, não chama de novo
+  //   if (allergensNotifier.value.isNotEmpty) return;
 
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+  //   setState(() {
+  //     // _loading = true;
+  //     // _error = null;
+  //   });
 
-    try {
-      final api = Allergens(baseUrl: 'https://sua-api.com');
-      final items = await api.fetchAllergens();
-      if (mounted) {
-        allergensNotifier.value = items;
-      }
-    } catch (e) {
-      if (mounted) {
-        _error = 'Error loading allergens';
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-        });
-      }
-    }
-  }
+  //   try {
+  //     final api = Allergens(baseUrl: 'https://sua-api.com');
+  //     final items = await api.fetchAllergens();
+  //     if (mounted) {
+  //       allergensNotifier.value = items;
+  //     }
+  //   } catch (e) {
+  //     if (mounted) {
+  //       _error = 'Error loading allergens';
+  //     }
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() {
+  //         _loading = false;
+  //       });
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

@@ -1,32 +1,15 @@
-import 'package:carte_app/data/notifiers.dart';
-import 'package:carte_app/views/pages/food_page.dart';
 import 'package:flutter/material.dart';
+import 'package:carte_app/views/pages/food_page.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final ValueNotifier<bool> _dark = isDarkModeNotifier;
-  final ValueNotifier<Set<String>> _selectedAllergens =
-      ValueNotifier<Set<String>>({'tree nuts'});
-
-  @override
-  void dispose() {
-    _dark.dispose();
-    _selectedAllergens.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final maxWidth =
-            constraints.maxWidth * MediaQuery.sizeOf(context).width * 0.8;
+        // usa só constraints, sem multiplicar por MediaQuery
+        final maxWidth = constraints.maxWidth * 0.8; // ocupa até 80% da largura
         final targetWidth = maxWidth > 440 ? 440.0 : maxWidth;
 
         return Center(

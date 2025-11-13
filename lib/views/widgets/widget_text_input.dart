@@ -7,11 +7,13 @@ class WidgetTextInput extends StatelessWidget {
     required this.controller,
     required this.inputName,
     required this.hintText,
+    this.hintStyle,
   });
 
   final String inputName;
   final String hintText;
   final TextEditingController controller;
+  final TextStyle? hintStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +59,12 @@ class WidgetTextInput extends StatelessWidget {
               borderSide: const BorderSide(color: primary, width: 1.2),
             ),
             hintText: hintText,
-            hintStyle: TextStyle(
-              fontFamily: KFont.fontFamilyContent,
-              fontWeight: FontWeight.w700,
-            ),
+            hintStyle:
+                hintStyle ??
+                TextStyle(
+                  fontFamily: KFont.fontFamilyContent,
+                  fontWeight: FontWeight.w900,
+                ),
           ),
         ),
       ],

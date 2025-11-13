@@ -12,6 +12,7 @@ class KColors {
 class KFont {
   static const String fontFamilyMain = 'Montaga';
   static const String fontFamilyContent = 'Montserrat';
+  static const String fontFamilyContentBold = 'Montserrat_Bold';
   static const double fontSizeMain = 32;
 }
 

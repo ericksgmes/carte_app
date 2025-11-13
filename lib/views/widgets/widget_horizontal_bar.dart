@@ -8,7 +8,7 @@ class WidgetHorizontalBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsetsGeometry.fromLTRB(0, 24, 0, 24),
+      padding: EdgeInsetsGeometry.fromLTRB(0, 0, 0, 24),
       child: Container(
         height: 4,
         width: double.infinity,

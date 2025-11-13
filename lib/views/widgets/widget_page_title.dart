@@ -10,6 +10,7 @@ class WidgetPageTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(height: 24),
         Center(
           child: Text(
             title,
