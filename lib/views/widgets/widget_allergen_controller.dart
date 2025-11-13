@@ -106,17 +106,14 @@ class _WidgetAllergenControllerState extends State<WidgetAllergenController> {
           return ValueListenableBuilder<Set<String>>(
             valueListenable: selectedAllergens,
             builder: (context, selected, __) {
-              // Clona e ordena a lista
               final sorted = List<String>.from(allergens);
               sorted.sort((a, b) {
                 final aSelected = selected.contains(a);
                 final bSelected = selected.contains(b);
 
-                // selecionados primeiro
                 if (aSelected && !bSelected) return -1;
                 if (!aSelected && bSelected) return 1;
 
-                // ordem alfabética dentro do grupo
                 return a.compareTo(b);
               });
 
@@ -132,7 +129,7 @@ class _WidgetAllergenControllerState extends State<WidgetAllergenController> {
 
                       return InputChip(
                         avatar: Icon(
-                          _iconForAllergen(a),
+                          iconForAllergen(a),
                           size: 20,
                           color: isSelected ? Colors.black : Colors.grey[700],
                         ),
@@ -190,7 +187,7 @@ class _WidgetAllergenControllerState extends State<WidgetAllergenController> {
   }
 }
 
-IconData _iconForAllergen(String a) {
+IconData iconForAllergen(String a) {
   switch (a) {
     case 'tree nuts':
       return Icons.eco_outlined;
