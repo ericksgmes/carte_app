@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Color lightBlue = const Color(0xFFBFD7ED);
+    final Color lightBlue = KColors.lightBlue;
 
     return Scaffold(
       backgroundColor: lightBlue,
@@ -70,8 +70,9 @@ class _LoginPageState extends State<LoginPage> {
                             'Get Started!',
                             style: TextStyle(
                               fontSize: KFont.fontSizeTitle,
-                              fontFamily: KFont.fontFamilyContentBold,
-                              color: Colors.black,
+                              fontFamily: KFont.fontFamilyTitle,
+                              fontWeight: FontWeight.bold,
+                              color: KColors.darkGray,
                             ),
                           ),
                         ),

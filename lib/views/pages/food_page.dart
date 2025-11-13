@@ -41,7 +41,6 @@ class _AddFoodState extends State<AddFood> {
             'Allergen',
             style: TextStyle(
               fontSize: 18,
-              color: Color(0xFF1E1E1E),
               fontFamily: KFont.fontFamilyContentBold,
             ),
           ),

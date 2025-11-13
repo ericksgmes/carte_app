@@ -9,6 +9,7 @@ class KColors {
   static const Color mediumBlue = Color(0xFF659AB9);
   static const Color darkBlue = Color(0xFF1F3A5F);
   static const Color lightBlue = Color(0xFFBFD7ED);
+  static const Color darkGray = Color(0xFF1E1E1E);
 }
 
 class KFont {
