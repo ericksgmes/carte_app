@@ -69,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             'Get Started!',
                             style: TextStyle(
-                              fontSize: KFont.fontSizeMain,
+                              fontSize: KFont.fontSizeTitle,
                               fontFamily: KFont.fontFamilyContentBold,
                               color: Colors.black,
                             ),

@@ -15,8 +15,8 @@ class WidgetPageTitle extends StatelessWidget {
           child: Text(
             title,
             style: const TextStyle(
-              fontSize: KFont.fontSizeMain,
-              fontFamily: KFont.fontFamilyMain,
+              fontSize: KFont.fontSizeTitle,
+              fontFamily: KFont.fontFamilyTitle,
               color: Colors.black,
             ),
           ),

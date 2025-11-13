@@ -1,9 +1,10 @@
+import 'package:carte_app/views/pages/meal_page.dart';
 import 'package:flutter/material.dart';
 import 'package:carte_app/data/notifiers.dart';
 import 'package:carte_app/views/pages/food_page.dart';
 import 'package:carte_app/views/widgets/widget_navbar.dart';
 
-final List<Widget> pages = [const AddFood()];
+final List<Widget> pages = [MealPage(), AddFood()];
 
 class WidgetTree extends StatelessWidget {
   const WidgetTree({super.key});
