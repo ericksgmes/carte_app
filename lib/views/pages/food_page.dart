@@ -1,5 +1,6 @@
 import 'package:carte_app/data/constants.dart';
-import 'package:carte_app/views/widgets/widget_allergen_controller.dart';
+import 'package:carte_app/data/mocks.dart';
+import 'package:carte_app/views/widgets/widget_allergen_pill.dart';
 import 'package:carte_app/views/widgets/widget_page_title.dart';
 import 'package:carte_app/views/widgets/widget_text_input.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class _AddFoodState extends State<AddFood> {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           WidgetPageTitle(title: 'Food'),
           WidgetTextInput(
@@ -45,7 +46,7 @@ class _AddFoodState extends State<AddFood> {
             ),
           ),
           const SizedBox(height: 12),
-          const WidgetAllergenController(),
+          WidgetAllergenPill(allergens: mockAllergens),
           const SizedBox(height: 40),
           SizedBox(
             width: double.infinity,
