@@ -62,6 +62,7 @@ class _MealPageState extends State<MealPage> {
     await _speech.listen(
       onResult: (result) {
         if (!mounted) return;
+        // ATUALIZA O MESMO CONTROLLER DO TEXTFIELD
         mealCtrl.text = result.recognizedWords;
         mealCtrl.selection = TextSelection.fromPosition(
           TextPosition(offset: mealCtrl.text.length),
@@ -73,6 +74,7 @@ class _MealPageState extends State<MealPage> {
         cancelOnError: true,
         partialResults: true,
       ),
+      localeId: 'pt_BR', // força português Brasil
     );
 
     if (!mounted) return;
@@ -82,7 +84,7 @@ class _MealPageState extends State<MealPage> {
   @override
   void dispose() {
     mealCtrl.dispose();
-    _speech.stop(); // ou cancel(), tanto faz aqui
+    _speech.stop();
     super.dispose();
   }
 
@@ -102,6 +104,7 @@ class _MealPageState extends State<MealPage> {
             onMicPressed: _toggleListen,
           ),
           const SizedBox(height: 32),
+
           WidgetAllergensBox(
             foods: mockFoods,
             order: mockAllergens,
@@ -109,6 +112,7 @@ class _MealPageState extends State<MealPage> {
             height: 180,
           ),
           const SizedBox(height: 32),
+
           SizedBox(
             width: double.infinity,
             height: 56,
