@@ -14,7 +14,7 @@ class MealPage extends StatefulWidget {
 }
 
 class _MealPageState extends State<MealPage> {
-  final nameController = TextEditingController();
+  final mealCtrl = TextEditingController();
   final stt.SpeechToText _speech = stt.SpeechToText();
 
   bool _available = false;
@@ -27,15 +27,25 @@ class _MealPageState extends State<MealPage> {
   }
 
   Future<void> _initSpeech() async {
-    _available = await _speech.initialize(
-      onStatus: (s) => setState(() => _listening = s == 'listening'),
-      onError: (e) => debugPrint('STT error: $e'),
+    final available = await _speech.initialize(
+      onStatus: (s) {
+        if (!mounted) return;
+        setState(() => _listening = s == 'listening');
+      },
+      onError: (e) {
+        debugPrint('STT error: $e');
+        if (!mounted) return;
+        setState(() => _listening = false);
+      },
     );
-    setState(() {});
+
+    if (!mounted) return;
+    setState(() => _available = available);
   }
 
   Future<void> _toggleListen() async {
     if (!_available) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Reconhecimento de voz indisponível')),
       );
@@ -44,15 +54,17 @@ class _MealPageState extends State<MealPage> {
 
     if (_listening) {
       await _speech.stop();
+      if (!mounted) return;
       setState(() => _listening = false);
       return;
     }
 
     await _speech.listen(
       onResult: (result) {
-        nameController.text = result.recognizedWords;
-        nameController.selection = TextSelection.fromPosition(
-          TextPosition(offset: nameController.text.length),
+        if (!mounted) return;
+        mealCtrl.text = result.recognizedWords;
+        mealCtrl.selection = TextSelection.fromPosition(
+          TextPosition(offset: mealCtrl.text.length),
         );
       },
       listenFor: const Duration(seconds: 30),
@@ -61,17 +73,16 @@ class _MealPageState extends State<MealPage> {
         cancelOnError: true,
         partialResults: true,
       ),
-      localeId: null,
-      onSoundLevelChange: (level) {},
     );
 
+    if (!mounted) return;
     setState(() => _listening = true);
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    _speech.cancel();
+    mealCtrl.dispose();
+    _speech.stop(); // ou cancel(), tanto faz aqui
     super.dispose();
   }
 
@@ -79,20 +90,18 @@ class _MealPageState extends State<MealPage> {
   Widget build(BuildContext context) {
     const bg = KColors.baseBg;
     const primary = KColors.mediumBlue;
-    final mealCtrl = TextEditingController();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          WidgetPageTitle(title: 'Meal'),
+          const WidgetPageTitle(title: 'Meal'),
           WidgetMultilineTextInput(
             controller: mealCtrl,
-            onMicPressed: () => _toggleListen(),
+            onMicPressed: _toggleListen,
           ),
           const SizedBox(height: 32),
-
           WidgetAllergensBox(
             foods: mockFoods,
             order: mockAllergens,
@@ -100,7 +109,6 @@ class _MealPageState extends State<MealPage> {
             height: 180,
           ),
           const SizedBox(height: 32),
-
           SizedBox(
             width: double.infinity,
             height: 56,
@@ -132,4 +140,3 @@ class _MealPageState extends State<MealPage> {
     );
   }
 }
-
