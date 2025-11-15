@@ -62,7 +62,6 @@ class _MealPageState extends State<MealPage> {
     await _speech.listen(
       onResult: (result) {
         if (!mounted) return;
-        // ATUALIZA O MESMO CONTROLLER DO TEXTFIELD
         mealCtrl.text = result.recognizedWords;
         mealCtrl.selection = TextSelection.fromPosition(
           TextPosition(offset: mealCtrl.text.length),
@@ -74,7 +73,6 @@ class _MealPageState extends State<MealPage> {
         cancelOnError: true,
         partialResults: true,
       ),
-      localeId: 'pt_BR', // força português Brasil
     );
 
     if (!mounted) return;
