@@ -36,7 +36,13 @@ class _SymptomPageState extends State<SymptomPage> {
             onChanged: (t) => symptomTime = t,
           ),
           const SizedBox(height: 24),
-          WidgetMultilineTextInput(controller: notesCtrl, onMicPressed: () {}),
+          WidgetMultilineTextInput(
+            controller: notesCtrl,
+            onMicPressed: () {},
+            label: 'Tell us what happened',
+            hint: '',
+            isThereVoiceInput: false,
+          ),
           const SizedBox(height: 32),
           SizedBox(
             width: double.infinity,

@@ -6,13 +6,16 @@ class WidgetMultilineTextInput extends StatelessWidget {
   final String label;
   final String hint;
   final VoidCallback onMicPressed;
+  final bool isThereVoiceInput;
+  static void _noop() {}
 
   const WidgetMultilineTextInput({
     super.key,
     required this.controller,
     this.label = "Describe in simple words\nwhat you’ve eaten",
     this.hint = "Rice, carrots and chicken...",
-    required this.onMicPressed,
+    this.onMicPressed = _noop,
+    this.isThereVoiceInput = true,
   });
 
   @override
@@ -58,23 +61,24 @@ class WidgetMultilineTextInput extends StatelessWidget {
                 ),
               ),
 
-              Positioned(
-                right: 12,
-                bottom: 12,
-                child: Material(
-                  color: KColors.mediumBlue,
-                  shape: const CircleBorder(),
-                  clipBehavior: Clip.antiAlias,
-                  child: InkWell(
-                    onTap: onMicPressed,
-                    customBorder: const CircleBorder(),
-                    child: const Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Icon(Icons.mic, size: 20),
+              if (isThereVoiceInput)
+                Positioned(
+                  right: 12,
+                  bottom: 12,
+                  child: Material(
+                    color: KColors.mediumBlue,
+                    shape: const CircleBorder(),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: onMicPressed,
+                      customBorder: const CircleBorder(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Icon(Icons.mic, size: 20),
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
