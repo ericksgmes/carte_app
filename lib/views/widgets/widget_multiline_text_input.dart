@@ -24,7 +24,7 @@ class WidgetMultilineTextInput extends StatelessWidget {
           label,
           style: TextStyle(
             fontFamily: KFont.fontFamilyContentMedium,
-            fontSize: 16,
+            fontSize: KFont.fontSizeLabel,
           ),
         ),
         const SizedBox(height: 8),
@@ -54,7 +54,7 @@ class WidgetMultilineTextInput extends StatelessWidget {
                 scrollPhysics: BouncingScrollPhysics(),
                 style: const TextStyle(
                   fontFamily: KFont.fontFamilyContentMedium,
-                  fontSize: 14,
+                  fontSize: KFont.fontSizeContent,
                 ),
               ),
 

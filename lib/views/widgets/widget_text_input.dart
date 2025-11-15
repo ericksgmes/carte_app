@@ -26,7 +26,7 @@ class WidgetTextInput extends StatelessWidget {
         Text(
           inputName,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: KFont.fontSizeLabel,
             color: Color(0xFF1E1E1E),
             fontFamily: KFont.fontFamilyContentMedium,
           ),
