@@ -41,7 +41,7 @@ class _AddFoodState extends State<AddFood> {
           const Text(
             'Allergen',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: KFont.fontSizeLabel,
               fontFamily: KFont.fontFamilyContentMedium,
             ),
           ),

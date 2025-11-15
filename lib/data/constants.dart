@@ -17,10 +17,10 @@ class KFont {
   static const String fontFamilyContent = 'Montserrat';
   static const String fontFamilyContentMedium = 'Montserrat_Medium';
   static const String fontFamilyButton = 'Montserrat_Bold';
-  static const double fontSizeTitle = 32;
-  static const double fontSizeLabel = 16;
-  static const double fontSizeContent = 14;
-  static const double fontSizeButton = 18;
+  static const double fontSizeTitle = 34;
+  static const double fontSizeLabel = 18;
+  static const double fontSizeContent = 16;
+  static const double fontSizeButton = 20;
 }
 
 class KTextStyle {
