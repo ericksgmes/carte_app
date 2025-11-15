@@ -1,6 +1,6 @@
-import 'package:carte_app/data/constants.dart';
 import 'package:carte_app/data/mocks.dart';
 import 'package:carte_app/views/widgets/widget_allergen_box.dart';
+import 'package:carte_app/views/widgets/widget_button.dart';
 import 'package:carte_app/views/widgets/widget_multiline_text_input.dart';
 import 'package:carte_app/views/widgets/widget_page_title.dart';
 import 'package:flutter/material.dart';
@@ -88,57 +88,47 @@ class _MealPageState extends State<MealPage> {
 
   @override
   Widget build(BuildContext context) {
-    const bg = KColors.baseBg;
-    const primary = KColors.mediumBlue;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const WidgetPageTitle(title: 'Meal'),
-          WidgetMultilineTextInput(
-            controller: mealCtrl,
-            onMicPressed: _toggleListen,
-          ),
-          const SizedBox(height: 32),
-
-          WidgetAllergensBox(
-            foods: mockFoods,
-            order: mockAllergens,
-            label: "Detected allergens",
-            height: 180,
-          ),
-          const SizedBox(height: 32),
-
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const WidgetPageTitle(title: 'Meal'),
+                WidgetMultilineTextInput(
+                  controller: mealCtrl,
+                  onMicPressed: _toggleListen,
                 ),
-                elevation: 0,
-              ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Food added (dummy action).')),
-                );
-              },
-              child: const Text(
-                'Add',
-                style: TextStyle(
-                  color: bg,
-                  fontSize: KFont.fontSizeButton,
-                  fontFamily: KFont.fontFamilyButton,
+                const SizedBox(height: 32),
+
+                WidgetAllergensBox(
+                  foods: mockFoods,
+                  order: mockAllergens,
+                  label: "Detected allergens",
+                  height: 180,
                 ),
-              ),
+                const SizedBox(height: 32),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8, left: 24, right: 24),
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: WidgetButton(onSubmit: () => onPressed(context)),
+          ),
+        ),
+      ],
     );
   }
+}
+
+void onPressed(BuildContext context) {
+  ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(const SnackBar(content: Text('Food added (dummy action).')));
 }
