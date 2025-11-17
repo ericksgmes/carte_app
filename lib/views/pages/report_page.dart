@@ -24,7 +24,6 @@ class _ReportPageState extends State<ReportPage> {
           const WidgetPageTitle(title: 'Report'),
           const SizedBox(height: 32),
 
-          // FROM input
           WidgetDateInput(
             label: 'From',
             initialDate: fromDate,
@@ -32,7 +31,6 @@ class _ReportPageState extends State<ReportPage> {
           ),
           const SizedBox(height: 24),
 
-          // TO input
           WidgetDateInput(
             label: 'To',
             initialDate: toDate,
@@ -40,7 +38,6 @@ class _ReportPageState extends State<ReportPage> {
           ),
           const SizedBox(height: 24),
 
-          // RANGE BUTTONS
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

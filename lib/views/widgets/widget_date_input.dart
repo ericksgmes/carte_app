@@ -25,12 +25,28 @@ class _WidgetDateInputState extends State<WidgetDateInput> {
   @override
   void initState() {
     super.initState();
-    _selected = widget.initialDate ?? DateTime.now();
-    controller.text = _formatDate(_selected!);
+    _selected = widget.initialDate;
+    if (_selected != null) {
+      controller.text = _formatDate(_selected!);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant WidgetDateInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.initialDate != oldWidget.initialDate) {
+      _selected = widget.initialDate;
+      if (_selected != null) {
+        controller.text = _formatDate(_selected!);
+      } else {
+        controller.clear();
+      }
+    }
   }
 
   String _formatDate(DateTime d) {
-    return DateFormat('dd.MM.yyyy').format(d);  // igual ao mock
+    return DateFormat('dd.MM.yyyy').format(d);
   }
 
   Future<void> _pickDate() async {
@@ -44,7 +60,7 @@ class _WidgetDateInputState extends State<WidgetDateInput> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: KColors.mediumBlue, // cor de destaque
+              primary: KColors.mediumBlue,
             ),
           ),
           child: child!,
@@ -60,6 +76,12 @@ class _WidgetDateInputState extends State<WidgetDateInput> {
     });
 
     widget.onChanged?.call(picked);
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
