@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 
-/// URL base da API. Em produção, altere para o IP/domínio real do servidor.
-/// Para emulador Android: use http://10.0.2.2:8080
-/// Para dispositivo físico ou iOS simulator na mesma rede: use o IP local, ex.: http://192.168.x.x:8080
-const String kBaseUrl = 'http://10.0.2.2:8080';
+/// URL base da API escolhida por plataforma:
+///   Web (Chrome)         → localhost:8080
+///   Emulador Android     → 10.0.2.2:8080
+///   iOS Simulator / físico na rede → ajuste para o IP da máquina
+final String kBaseUrl =
+    kIsWeb ? 'http://localhost:8080' : 'http://10.0.2.2:8080';
 
 class ApiService {
   final String baseUrl;
