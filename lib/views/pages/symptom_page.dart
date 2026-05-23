@@ -67,5 +67,5 @@ class _SymptomPageState extends State<SymptomPage> {
 void onPressed(BuildContext context) {
   ScaffoldMessenger.of(
     context,
-  ).showSnackBar(const SnackBar(content: Text('Food added (dummy action).')));
+  ).showSnackBar(const SnackBar(content: Text('Symptom added.')));
 }

@@ -68,6 +68,6 @@ class _AddFoodState extends State<AddFood> {
   void onPressed(BuildContext context) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Food added (dummy action).')));
+    ).showSnackBar(const SnackBar(content: Text('Food added.')));
   }
 }

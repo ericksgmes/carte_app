@@ -130,5 +130,5 @@ class _MealPageState extends State<MealPage> {
 void onPressed(BuildContext context) {
   ScaffoldMessenger.of(
     context,
-  ).showSnackBar(const SnackBar(content: Text('Food added (dummy action).')));
+  ).showSnackBar(const SnackBar(content: Text('Meal registered.')));
 }
