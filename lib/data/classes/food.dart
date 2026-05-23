@@ -2,30 +2,49 @@ import 'allergen.dart';
 
 class Food {
   final String description;
-  final Allergen allergen;
+  final List<Allergen> allergens;
 
-  const Food({required this.description, required this.allergen});
+  const Food({required this.description, required this.allergens});
+
+  /// Conveniência: retorna o primeiro alérgeno ou null.
+  Allergen? get primaryAllergen =>
+      allergens.isNotEmpty ? allergens.first : null;
 
   factory Food.fromJson(Map<String, dynamic> json) {
-    if (!json.containsKey('description') || !json.containsKey('allergen')) {
+    if (!json.containsKey('description')) {
       throw const FormatException('Campos obrigatórios ausentes em Food');
     }
 
-    final allergenJson = json['allergen'] as Map<String, dynamic>;
-    final allergen = Allergen.fromJson(allergenJson);
+    final List<Allergen> allergens;
 
-    return Food(description: json['description'] as String, allergen: allergen);
+    // Suporta tanto o formato legado {allergen: {...}} quanto o novo
+    // {allergens: [...]} que a API agora retorna.
+    if (json.containsKey('allergens') && json['allergens'] is List) {
+      allergens = (json['allergens'] as List)
+          .map((e) => Allergen.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } else if (json.containsKey('allergen') && json['allergen'] is Map) {
+      // Formato legado: allergen único aninhado (mocks / testes antigos)
+      allergens = [Allergen.fromJson(json['allergen'] as Map<String, dynamic>)];
+    } else {
+      allergens = [];
+    }
+
+    return Food(
+      description: json['description'] as String,
+      allergens: allergens,
+    );
   }
 
   Map<String, dynamic> toJson() => {
-    'description': description,
-    'allergen': allergen.toJson(),
-  };
+        'description': description,
+        'allergens': allergens.map((a) => a.toJson()).toList(),
+      };
 
-  Food copyWith({String? description, Allergen? allergen}) {
+  Food copyWith({String? description, List<Allergen>? allergens}) {
     return Food(
       description: description ?? this.description,
-      allergen: allergen ?? this.allergen,
+      allergens: allergens ?? this.allergens,
     );
   }
 
@@ -33,17 +52,28 @@ class Food {
   bool operator ==(Object other) =>
       other is Food &&
       other.description == description &&
-      other.allergen == allergen;
+      _listEquals(other.allergens, allergens);
 
   @override
-  int get hashCode => Object.hash(description, allergen);
+  int get hashCode => Object.hash(description, Object.hashAll(allergens));
+}
+
+bool _listEquals<T>(List<T> a, List<T> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
 }
 
 Map<Allergen, List<Food>> groupFoodsByAllergen(List<Food> foods) {
   final Map<Allergen, List<Food>> grouped = {};
 
   for (final food in foods) {
-    grouped.putIfAbsent(food.allergen, () => []).add(food);
+    for (final allergen in food.allergens) {
+      grouped.putIfAbsent(allergen, () => []).add(food);
+    }
+    // Se não tem alérgenos, não aparece em nenhum grupo
   }
 
   return grouped;

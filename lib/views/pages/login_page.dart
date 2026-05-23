@@ -1,3 +1,6 @@
+import 'package:carte_app/data/api/api_service.dart';
+import 'package:carte_app/data/api/user_api.dart';
+import 'package:carte_app/data/notifiers.dart';
 import 'package:carte_app/views/widget_tree.dart';
 import 'package:carte_app/views/widgets/widget_horizontal_bar.dart';
 import 'package:flutter/material.dart';
@@ -14,13 +17,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
-  final _pwdCtrl = TextEditingController();
+  bool _loading = false;
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _emailCtrl.dispose();
-    _pwdCtrl.dispose();
     super.dispose();
   }
 
@@ -41,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
                 width: 158,
                 height: 158,
                 decoration: const ShapeDecoration(shape: OvalBorder()),
-                child: Image(image: AssetImage("images/icon.png")),
+                child: const Image(image: AssetImage("images/icon.png")),
               ),
             ),
 
@@ -77,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.fromLTRB(60, 0, 60, 0),
+                          padding: const EdgeInsets.fromLTRB(60, 0, 60, 0),
                           child: WidgetHorizontalBar(
                             primaryColor: KColors.mediumBlue,
                           ),
@@ -111,15 +113,24 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               elevation: 0,
                             ),
-                            onPressed: _onSubmit,
-                            child: const Text(
-                              'Enter',
-                              style: TextStyle(
-                                color: KColors.baseBg,
-                                fontSize: KFont.fontSizeButton,
-                                fontFamily: KFont.fontFamilyButton,
-                              ),
-                            ),
+                            onPressed: _loading ? null : _onSubmit,
+                            child: _loading
+                                ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Enter',
+                                    style: TextStyle(
+                                      color: KColors.baseBg,
+                                      fontSize: KFont.fontSizeButton,
+                                      fontFamily: KFont.fontFamilyButton,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
@@ -134,16 +145,43 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _onSubmit() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return WidgetTree();
-        },
-      ),
-      (route) => false,
-    );
+  Future<void> _onSubmit() async {
+    final name = _nameCtrl.text.trim();
+    final email = _emailCtrl.text.trim();
+
+    if (name.isEmpty || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, preencha nome e email.')),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+
+    try {
+      final api = UserApi(ApiService());
+      final user = await api.loginOrCreate(name: name, email: email);
+      currentUserNotifier.value = user;
+
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const WidgetTree()),
+        (route) => false,
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ${e.statusCode}: ${e.body}')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro de conexão: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 }
 

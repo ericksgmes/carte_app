@@ -20,10 +20,12 @@ void main() {
     color: Color(0xFF64B5F6),
   );
 
-  const bread = Food(description: 'Pão integral', allergen: glutenAllergen);
+  const bread = Food(
+    description: 'Pão integral',
+    allergens: [glutenAllergen],
+  );
 
-  // Returns a fresh deep copy each call so mutation in one test can't bleed
-  // into another (e.g. the test that removes 'id' from the allergen map).
+  // Retorna JSON no formato legado (allergen singular — compatibilidade)
   Map<String, dynamic> allergenJson() => {
         'id': 'gluten',
         'description': 'Glúten',
@@ -31,37 +33,54 @@ void main() {
         'colorHash': '#E57373',
       };
 
-  Map<String, dynamic> foodJson({String description = 'Pão integral'}) => {
+  // Formato legado: allergen singular aninhado
+  Map<String, dynamic> foodJsonLegacy({String description = 'Pão integral'}) =>
+      {
         'description': description,
         'allergen': allergenJson(),
+      };
+
+  // Formato novo: allergens como lista
+  Map<String, dynamic> foodJsonNew({String description = 'Pão integral'}) => {
+        'description': description,
+        'allergens': [allergenJson()],
       };
 
   // ── fromJson ──────────────────────────────────────────────────────────────
 
   group('Food.fromJson', () {
-    test('parses description and nested allergen', () {
-      final result = Food.fromJson(foodJson());
+    test('parses description and nested allergen list (new format)', () {
+      final result = Food.fromJson(foodJsonNew());
 
       expect(result.description, 'Pão integral');
-      expect(result.allergen.id, 'gluten');
-      expect(result.allergen.description, 'Glúten');
+      expect(result.allergens, hasLength(1));
+      expect(result.allergens.first.id, 'gluten');
+    });
+
+    test('parses description and single allergen (legacy format)', () {
+      final result = Food.fromJson(foodJsonLegacy());
+
+      expect(result.description, 'Pão integral');
+      expect(result.allergens, hasLength(1));
+      expect(result.allergens.first.id, 'gluten');
+    });
+
+    test('returns empty allergens when neither allergen nor allergens present', () {
+      final result = Food.fromJson({'description': 'Água'});
+
+      expect(result.description, 'Água');
+      expect(result.allergens, isEmpty);
     });
 
     test('throws FormatException when "description" is missing', () {
-      final json = foodJson()..remove('description');
-
-      expect(() => Food.fromJson(json), throwsA(isA<FormatException>()));
-    });
-
-    test('throws FormatException when "allergen" is missing', () {
-      final json = foodJson()..remove('allergen');
+      final json = foodJsonNew()..remove('description');
 
       expect(() => Food.fromJson(json), throwsA(isA<FormatException>()));
     });
 
     test('propagates FormatException from Allergen when allergen fields missing', () {
       final badAllergen = allergenJson()..remove('id');
-      final json = {'description': 'Pão integral', 'allergen': badAllergen};
+      final json = {'description': 'Pão integral', 'allergens': [badAllergen]};
 
       expect(() => Food.fromJson(json), throwsA(isA<FormatException>()));
     });
@@ -70,19 +89,32 @@ void main() {
   // ── toJson ────────────────────────────────────────────────────────────────
 
   group('Food.toJson', () {
-    test('serialises description and nested allergen', () {
+    test('serialises description and allergens list', () {
       final json = bread.toJson();
 
       expect(json['description'], 'Pão integral');
-      expect((json['allergen'] as Map)['id'], 'gluten');
+      expect((json['allergens'] as List).first['id'], 'gluten');
     });
 
-    test('round-trip fromJson→toJson→fromJson preserves values', () {
-      final first = Food.fromJson(foodJson());
+    test('round-trip fromJson→toJson→fromJson preserves values (new format)', () {
+      final first = Food.fromJson(foodJsonNew());
       final second = Food.fromJson(first.toJson());
 
       expect(second.description, first.description);
-      expect(second.allergen.id, first.allergen.id);
+      expect(second.allergens.first.id, first.allergens.first.id);
+    });
+  });
+
+  // ── primaryAllergen ───────────────────────────────────────────────────────
+
+  group('Food.primaryAllergen', () {
+    test('returns first allergen when list is not empty', () {
+      expect(bread.primaryAllergen, equals(glutenAllergen));
+    });
+
+    test('returns null when allergens list is empty', () {
+      const noAllergen = Food(description: 'Água', allergens: []);
+      expect(noAllergen.primaryAllergen, isNull);
     });
   });
 
@@ -93,45 +125,45 @@ void main() {
       final copy = bread.copyWith(description: 'Macarrão');
 
       expect(copy.description, 'Macarrão');
-      expect(copy.allergen, glutenAllergen);
+      expect(copy.allergens, bread.allergens);
     });
 
-    test('overrides allergen only', () {
-      final copy = bread.copyWith(allergen: milkAllergen);
+    test('overrides allergens only', () {
+      final copy = bread.copyWith(allergens: [milkAllergen]);
 
       expect(copy.description, bread.description);
-      expect(copy.allergen, milkAllergen);
+      expect(copy.allergens, [milkAllergen]);
     });
 
     test('returns equivalent object when nothing is overridden', () {
       final copy = bread.copyWith();
 
       expect(copy.description, bread.description);
-      expect(copy.allergen, bread.allergen);
+      expect(copy.allergens, bread.allergens);
     });
   });
 
   // ── equality & hashCode ───────────────────────────────────────────────────
 
   group('Food equality', () {
-    test('same description and allergen → equal', () {
-      const a = Food(description: 'Pão integral', allergen: glutenAllergen);
-      const b = Food(description: 'Pão integral', allergen: glutenAllergen);
+    test('same description and allergens → equal', () {
+      const a = Food(description: 'Pão integral', allergens: [glutenAllergen]);
+      const b = Food(description: 'Pão integral', allergens: [glutenAllergen]);
 
       expect(a, equals(b));
       expect(a.hashCode, equals(b.hashCode));
     });
 
     test('different description → not equal', () {
-      const a = Food(description: 'Pão integral', allergen: glutenAllergen);
-      const b = Food(description: 'Macarrão', allergen: glutenAllergen);
+      const a = Food(description: 'Pão integral', allergens: [glutenAllergen]);
+      const b = Food(description: 'Macarrão', allergens: [glutenAllergen]);
 
       expect(a, isNot(equals(b)));
     });
 
-    test('different allergen → not equal', () {
-      const a = Food(description: 'Café', allergen: glutenAllergen);
-      const b = Food(description: 'Café', allergen: milkAllergen);
+    test('different allergens → not equal', () {
+      const a = Food(description: 'Café', allergens: [glutenAllergen]);
+      const b = Food(description: 'Café', allergens: [milkAllergen]);
 
       expect(a, isNot(equals(b)));
     });
@@ -147,7 +179,8 @@ void main() {
     });
 
     test('groups foods with the same allergen together', () {
-      const pasta = Food(description: 'Macarrão', allergen: glutenAllergen);
+      const pasta =
+          Food(description: 'Macarrão', allergens: [glutenAllergen]);
       const result = [bread, pasta];
 
       final grouped = groupFoodsByAllergen(result);
@@ -157,7 +190,8 @@ void main() {
     });
 
     test('creates separate entries for different allergens', () {
-      const milk = Food(description: 'Café com leite', allergen: milkAllergen);
+      const milk =
+          Food(description: 'Café com leite', allergens: [milkAllergen]);
       final foods = [bread, milk];
 
       final grouped = groupFoodsByAllergen(foods);
@@ -167,14 +201,22 @@ void main() {
       expect(grouped[milkAllergen], contains(milk));
     });
 
-    test('preserves insertion order within each group', () {
-      const pasta = Food(description: 'Macarrão', allergen: glutenAllergen);
-      final foods = [bread, pasta];
+    test('food with multiple allergens appears in multiple groups', () {
+      const combo = Food(
+          description: 'Pão com manteiga',
+          allergens: [glutenAllergen, milkAllergen]);
+      final grouped = groupFoodsByAllergen([combo]);
 
-      final grouped = groupFoodsByAllergen(foods);
+      expect(grouped.keys, hasLength(2));
+      expect(grouped[glutenAllergen], contains(combo));
+      expect(grouped[milkAllergen], contains(combo));
+    });
 
-      expect(grouped[glutenAllergen]!.first.description, 'Pão integral');
-      expect(grouped[glutenAllergen]!.last.description, 'Macarrão');
+    test('food with no allergens does not appear in any group', () {
+      const plain = Food(description: 'Água', allergens: []);
+      final grouped = groupFoodsByAllergen([plain]);
+
+      expect(grouped, isEmpty);
     });
 
     test('single food produces a map with one entry containing one item', () {

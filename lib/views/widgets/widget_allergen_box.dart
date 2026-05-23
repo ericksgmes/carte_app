@@ -35,7 +35,9 @@ class WidgetAllergensBox extends StatelessWidget {
 Map<Allergen, List<Food>> _groupFoodsByAllergen(List<Food> foods) {
   final Map<Allergen, List<Food>> grouped = {};
   for (final f in foods) {
-    grouped.putIfAbsent(f.allergen, () => []).add(f);
+    for (final allergen in f.allergens) {
+      grouped.putIfAbsent(allergen, () => []).add(f);
+    }
   }
   return grouped;
 }

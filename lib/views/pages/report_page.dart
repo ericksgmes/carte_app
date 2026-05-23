@@ -1,4 +1,7 @@
+import 'package:carte_app/data/api/api_service.dart';
+import 'package:carte_app/data/api/report_api.dart';
 import 'package:carte_app/data/constants.dart';
+import 'package:carte_app/data/notifiers.dart';
 import 'package:carte_app/views/widgets/widget_date_input.dart';
 import 'package:carte_app/views/widgets/widget_page_title.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +16,39 @@ class ReportPage extends StatefulWidget {
 class _ReportPageState extends State<ReportPage> {
   DateTime? fromDate;
   DateTime? toDate;
+  bool _loading = false;
+  ReportResult? _result;
+  String? _error;
+
+  Future<void> _generateReport() async {
+    final user = currentUserNotifier.value;
+    if (user == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Faça login primeiro.')));
+      return;
+    }
+
+    setState(() {
+      _loading = true;
+      _result = null;
+      _error = null;
+    });
+
+    try {
+      final api = ReportApi(ApiService());
+      final result = await api.getReport(userId: user.id);
+      if (!mounted) return;
+      setState(() => _result = result);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _error = 'Erro ${e.statusCode}');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _error = 'Erro de conexão: $e');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +91,8 @@ class _ReportPageState extends State<ReportPage> {
                 onTap: () {
                   setState(() {
                     toDate = DateTime.now();
-                    fromDate = DateTime.now().subtract(
-                      const Duration(days: 30),
-                    );
+                    fromDate =
+                        DateTime.now().subtract(const Duration(days: 30));
                   });
                 },
               ),
@@ -66,9 +101,8 @@ class _ReportPageState extends State<ReportPage> {
                 onTap: () {
                   setState(() {
                     toDate = DateTime.now();
-                    fromDate = DateTime.now().subtract(
-                      const Duration(days: 90),
-                    );
+                    fromDate =
+                        DateTime.now().subtract(const Duration(days: 90));
                   });
                 },
               ),
@@ -88,77 +122,34 @@ class _ReportPageState extends State<ReportPage> {
                 ),
                 elevation: 0,
               ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Generating report...')),
-                );
-              },
-              child: const Text(
-                'Generate',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: KFont.fontSizeButton,
-                  fontFamily: KFont.fontFamilyButton,
-                ),
-              ),
+              onPressed: _loading ? null : _generateReport,
+              child: _loading
+                  ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2),
+                    )
+                  : const Text(
+                      'Generate',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: KFont.fontSizeButton,
+                        fontFamily: KFont.fontFamilyButton,
+                      ),
+                    ),
             ),
           ),
 
           const SizedBox(height: 32),
 
-          // RESULT BOX
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: KColors.mediumBlue,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Summary',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontFamily: KFont.fontFamilyContentMedium,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
+          // RESULTADO
+          if (_error != null)
+            Text(_error!,
+                style: const TextStyle(color: Colors.red),
+                textAlign: TextAlign.center),
 
-                const Text(
-                  '57 meals logged',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontFamily: KFont.fontFamilyContent,
-                  ),
-                ),
-                const SizedBox(height: 18),
-
-                const Text(
-                  'Top occurrences',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontFamily: KFont.fontFamilyContentMedium,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: const [
-                    _TagChip(label: 'gluten'),
-                    _TagChip(label: 'shellfish'),
-                    _TagChip(label: 'peanuts'),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          if (_result != null) _buildSummary(_result!),
 
           const SizedBox(height: 32),
 
@@ -173,7 +164,11 @@ class _ReportPageState extends State<ReportPage> {
                 ),
                 elevation: 0,
               ),
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Export não implementado ainda.')),
+                );
+              },
               child: const Text(
                 'Export',
                 style: TextStyle(
@@ -186,6 +181,69 @@ class _ReportPageState extends State<ReportPage> {
           ),
 
           const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummary(ReportResult result) {
+    // Top 5 sintomas por frequência
+    final topSymptoms = result.symptomFrequency.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final top5 = topSymptoms.take(5).toList();
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: KColors.mediumBlue,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Summary',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontFamily: KFont.fontFamilyContentMedium,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          Text(
+            '${result.pairs.length} meal-symptom pairs found',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontFamily: KFont.fontFamilyContent,
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          if (top5.isNotEmpty) ...[
+            const Text(
+              'Top occurrences',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontFamily: KFont.fontFamilyContentMedium,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: top5
+                  .map((e) => _TagChip(label: '${e.key} (${e.value}x)'))
+                  .toList(),
+            ),
+          ] else
+            const Text(
+              'Nenhuma correlação encontrada no período.',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
         ],
       ),
     );
@@ -230,7 +288,7 @@ class _RangeButton extends StatelessWidget {
 }
 
 // --------------------------------------------
-// TAG CHIP (gluten, shellfish, peanuts)
+// TAG CHIP
 // --------------------------------------------
 class _TagChip extends StatelessWidget {
   final String label;
@@ -242,7 +300,7 @@ class _TagChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.85),
+        color: Colors.white.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
