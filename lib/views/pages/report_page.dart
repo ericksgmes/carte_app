@@ -5,6 +5,7 @@ import 'package:carte_app/data/notifiers.dart';
 import 'package:carte_app/views/widgets/widget_date_input.dart';
 import 'package:carte_app/views/widgets/widget_page_title.dart';
 import 'package:flutter/material.dart';
+import 'package:printing/printing.dart';
 
 class ReportPage extends StatefulWidget {
   const ReportPage({super.key});
@@ -17,6 +18,7 @@ class _ReportPageState extends State<ReportPage> {
   DateTime? fromDate;
   DateTime? toDate;
   bool _loading = false;
+  bool _exportLoading = false;
   ReportResult? _result;
   String? _error;
 
@@ -36,7 +38,11 @@ class _ReportPageState extends State<ReportPage> {
 
     try {
       final api = ReportApi(ApiService());
-      final result = await api.getReport(userId: user.id);
+      final result = await api.getReport(
+        userId: user.id,
+        from: fromDate,
+        to: toDate,
+      );
       if (!mounted) return;
       setState(() => _result = result);
     } on ApiException catch (e) {
@@ -47,6 +53,39 @@ class _ReportPageState extends State<ReportPage> {
       setState(() => _error = 'Erro de conexão: $e');
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _exportReport() async {
+    final user = currentUserNotifier.value;
+    if (user == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Faça login primeiro.')));
+      return;
+    }
+
+    setState(() => _exportLoading = true);
+
+    try {
+      final api = ReportApi(ApiService());
+      final bytes = await api.exportReport(
+        userId: user.id,
+        from: fromDate,
+        to: toDate,
+      );
+      await Printing.sharePdf(bytes: bytes, filename: 'carte-report.pdf');
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ${e.statusCode} ao exportar.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao exportar: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _exportLoading = false);
     }
   }
 
@@ -158,25 +197,28 @@ class _ReportPageState extends State<ReportPage> {
             height: 56,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: KColors.mediumBlue,
+                backgroundColor: KColors.darkBlue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
                 elevation: 0,
               ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Export não implementado ainda.')),
-                );
-              },
-              child: const Text(
-                'Export',
-                style: TextStyle(
-                  color: KColors.baseBg,
-                  fontSize: KFont.fontSizeButton,
-                  fontFamily: KFont.fontFamilyButton,
-                ),
-              ),
+              onPressed: _exportLoading ? null : _exportReport,
+              child: _exportLoading
+                  ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2),
+                    )
+                  : const Text(
+                      'Export PDF',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: KFont.fontSizeButton,
+                        fontFamily: KFont.fontFamilyButton,
+                      ),
+                    ),
             ),
           ),
 
@@ -187,10 +229,13 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Widget _buildSummary(ReportResult result) {
-    // Top 5 sintomas por frequência
-    final topSymptoms = result.symptomFrequency.entries.toList()
+    // Top 5 allergens by frequency
+    final topAllergens = result.allergenFrequency.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    final top5 = topSymptoms.take(5).toList();
+    final top5 = topAllergens.take(5).toList();
+
+    final mealLabel =
+        result.mealCount == 1 ? '1 meal logged' : '${result.mealCount} meals logged';
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -213,7 +258,7 @@ class _ReportPageState extends State<ReportPage> {
           const SizedBox(height: 12),
 
           Text(
-            '${result.pairs.length} meal-symptom pairs found',
+            mealLabel,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -236,12 +281,12 @@ class _ReportPageState extends State<ReportPage> {
               spacing: 8,
               runSpacing: 8,
               children: top5
-                  .map((e) => _TagChip(label: '${e.key} (${e.value}x)'))
+                  .map((e) => _AllergenChip(label: e.key))
                   .toList(),
             ),
           ] else
             const Text(
-              'Nenhuma correlação encontrada no período.',
+              'No allergens found in the selected period.',
               style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
         ],
@@ -288,34 +333,28 @@ class _RangeButton extends StatelessWidget {
 }
 
 // --------------------------------------------
-// TAG CHIP
+// ALLERGEN CHIP
 // --------------------------------------------
-class _TagChip extends StatelessWidget {
+class _AllergenChip extends StatelessWidget {
   final String label;
 
-  const _TagChip({required this.label});
+  const _AllergenChip({required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.85),
+        color: Colors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.link, size: 16, color: Colors.black54),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: KFont.fontFamilyContentMedium,
-              color: Colors.black87,
-            ),
-          ),
-        ],
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontFamily: KFont.fontFamilyContentMedium,
+          color: Colors.black87,
+          fontSize: 13,
+        ),
       ),
     );
   }

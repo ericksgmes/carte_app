@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 
@@ -27,6 +28,15 @@ class ApiService {
     final res = await _client.get(uri, headers: _headers);
     _assertOk(res);
     return jsonDecode(res.body);
+  }
+
+  Future<Uint8List> getBytes(String path) async {
+    final uri = Uri.parse('$baseUrl$path');
+    final res = await _client.get(uri, headers: {
+      'Accept': 'application/pdf',
+    });
+    _assertOk(res);
+    return res.bodyBytes;
   }
 
   Future<dynamic> post(String path, Map<String, dynamic> body) async {
