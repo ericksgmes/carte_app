@@ -1,5 +1,6 @@
 import 'package:carte_app/data/api/allergen_api.dart';
 import 'package:carte_app/data/api/api_service.dart';
+import 'package:carte_app/data/api/food_api.dart';
 import 'package:carte_app/data/classes/allergen.dart';
 import 'package:carte_app/data/constants.dart';
 import 'package:carte_app/data/mocks.dart';
@@ -20,6 +21,7 @@ class AddFood extends StatefulWidget {
 class _AddFoodState extends State<AddFood> {
   final nameController = TextEditingController();
   List<Allergen> _allergens = [];
+  bool _submitting = false;
 
   @override
   void initState() {
@@ -83,14 +85,16 @@ class _AddFoodState extends State<AddFood> {
           child: SizedBox(
             width: double.infinity,
             height: 56,
-            child: WidgetButton(onSubmit: () => _onPressed(context)),
+            child: _submitting
+                ? const Center(child: CircularProgressIndicator())
+                : WidgetButton(onSubmit: _onPressed, label: 'Add'),
           ),
         ),
       ],
     );
   }
 
-  void _onPressed(BuildContext context) {
+  Future<void> _onPressed() async {
     final name = nameController.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -107,13 +111,46 @@ class _AddFoodState extends State<AddFood> {
       return;
     }
 
-    // O Food criado aqui pode ser usado pelo MealPage via estado global
-    // Por ora, exibe confirmação — a integração com POST /api/meals
-    // é feita na MealPage ao submeter a refeição completa.
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Alimento "$name" adicionado à refeição.')),
-    );
-    nameController.clear();
-    selectedAllergens.value = {};
+    final user = currentUserNotifier.value;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Faça login primeiro.')),
+      );
+      return;
+    }
+
+    final allergenIds = _allergens
+        .where((a) => selected.contains(a.id))
+        .map((a) => a.numericId)
+        .where((id) => id != null && id > 0)
+        .cast<int>()
+        .toList();
+
+    setState(() => _submitting = true);
+
+    try {
+      await FoodApi(ApiService()).createFood(
+        userId: user.id,
+        description: name,
+        allergenIds: allergenIds,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('"$name" salvo com sucesso!')),
+      );
+      nameController.clear();
+      selectedAllergens.value = {};
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Erro ${e.statusCode}')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Erro de conexão: $e')));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 }

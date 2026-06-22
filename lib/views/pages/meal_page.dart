@@ -1,9 +1,7 @@
-import 'package:carte_app/data/api/allergen_api.dart';
 import 'package:carte_app/data/api/api_service.dart';
+import 'package:carte_app/data/api/food_api.dart';
 import 'package:carte_app/data/api/meal_api.dart';
-import 'package:carte_app/data/classes/allergen.dart';
 import 'package:carte_app/data/classes/food.dart';
-import 'package:carte_app/data/mocks.dart';
 import 'package:carte_app/data/notifiers.dart';
 import 'package:carte_app/views/widgets/widget_allergen_box.dart';
 import 'package:carte_app/views/widgets/widget_button.dart';
@@ -27,13 +25,16 @@ class _MealPageState extends State<MealPage> {
   bool _listening = false;
   bool _submitting = false;
 
-  List<Allergen> _allergens = [];
+  List<Food> _userFoods = [];
+  List<Food> _matchedFoods = [];
+  List<Food> _closestFoods = [];
 
   @override
   void initState() {
     super.initState();
     _initSpeech();
-    _loadAllergens();
+    _loadFoods();
+    mealCtrl.addListener(_updateMatches);
   }
 
   Future<void> _initSpeech() async {
@@ -52,17 +53,67 @@ class _MealPageState extends State<MealPage> {
     setState(() => _available = available);
   }
 
-  Future<void> _loadAllergens() async {
+  Future<void> _loadFoods() async {
+    final user = currentUserNotifier.value;
+    if (user == null) return;
     try {
-      final api = AllergenApi(ApiService());
-      final list = await api.fetchAll();
+      final foods = await FoodApi(ApiService()).fetchByUserId(user.id);
       if (!mounted) return;
-      setState(() => _allergens = list);
-    } catch (_) {
-      // Fallback para mocks em caso de erro de conexão
-      if (!mounted) return;
-      setState(() => _allergens = mockAllergens);
+      setState(() => _userFoods = foods);
+      _updateMatches();
+    } catch (_) {}
+  }
+
+  void _updateMatches() {
+    final text = mealCtrl.text.toLowerCase();
+    if (text.isEmpty) {
+      setState(() {
+        _matchedFoods = [];
+        _closestFoods = [];
+      });
+      return;
     }
+
+    final matched = _userFoods
+        .where((f) => text.contains(f.description.toLowerCase()))
+        .toList();
+
+    List<Food> closest = [];
+    if (matched.isEmpty) {
+      closest = _computeClosest(text);
+    }
+
+    setState(() {
+      _matchedFoods = matched;
+      _closestFoods = closest;
+    });
+  }
+
+  // Retorna a food com maior sobreposição de palavras com o texto digitado.
+  // Ignora palavras com ≤ 2 caracteres para evitar falsos positivos ("de", "e").
+  List<Food> _computeClosest(String text) {
+    final inputWords = text
+        .split(RegExp(r'\s+'))
+        .where((w) => w.length > 2)
+        .toSet();
+
+    if (inputWords.isEmpty) return [];
+
+    Food? best;
+    int bestScore = 0;
+
+    for (final food in _userFoods) {
+      final foodWords =
+          food.description.toLowerCase().split(RegExp(r'\s+'));
+      final score =
+          foodWords.where((w) => inputWords.contains(w)).length;
+      if (score > bestScore) {
+        bestScore = score;
+        best = food;
+      }
+    }
+
+    return best != null ? [best] : [];
   }
 
   Future<void> _toggleListen() async {
@@ -103,32 +154,10 @@ class _MealPageState extends State<MealPage> {
 
   @override
   void dispose() {
+    mealCtrl.removeListener(_updateMatches);
     mealCtrl.dispose();
     _speech.stop();
     super.dispose();
-  }
-
-  /// Constrói a lista de Foods a partir do texto digitado e dos alérgenos selecionados.
-  List<Food> _buildFoods() {
-    final text = mealCtrl.text.trim();
-    if (text.isEmpty) return [];
-
-    // Divide por vírgula ou nova linha — cada item é um alimento separado
-    final items = text
-        .split(RegExp(r'[,\n]'))
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
-
-    final selected = selectedAllergens.value;
-    final selectedAllergenObjects = _allergens
-        .where((a) => selected.contains(a.id))
-        .toList();
-
-    return items.map((desc) => Food(
-          description: desc,
-          allergens: selectedAllergenObjects,
-        )).toList();
   }
 
   Future<void> _onSubmit() async {
@@ -139,10 +168,10 @@ class _MealPageState extends State<MealPage> {
       return;
     }
 
-    final foods = _buildFoods();
-    if (foods.isEmpty) {
+    final description = mealCtrl.text.trim();
+    if (description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Descreva pelo menos um alimento.')),
+        const SnackBar(content: Text('Descreva os alimentos da refeição.')),
       );
       return;
     }
@@ -154,19 +183,20 @@ class _MealPageState extends State<MealPage> {
       await api.createMeal(
         userId: user.id,
         date: DateTime.now(),
-        foods: foods,
+        description: description,
       );
 
       if (!mounted) return;
       mealCtrl.clear();
-      selectedAllergens.value = {};
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Refeição registrada com sucesso!')),
       );
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Erro ${e.statusCode}')));
+      final msg = e.statusCode == 422
+          ? 'Nenhum alimento cadastrado corresponde à descrição.'
+          : 'Erro ${e.statusCode}';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
@@ -178,9 +208,6 @@ class _MealPageState extends State<MealPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Detecta alérgenos a partir dos alimentos já inseridos
-    final foods = _buildFoods();
-
     return Column(
       children: [
         Expanded(
@@ -194,15 +221,25 @@ class _MealPageState extends State<MealPage> {
                   controller: mealCtrl,
                   onMicPressed: _toggleListen,
                 ),
-                const SizedBox(height: 32),
-
-                WidgetAllergensBox(
-                  foods: foods,
-                  order: _allergens,
-                  label: "Detected allergens",
-                  height: 180,
-                ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
+                if (_matchedFoods.isNotEmpty) ...[
+                  widgetList(_matchedFoods),
+                  const SizedBox(height: 16),
+                ] else if (_closestFoods.isNotEmpty) ...[
+                  const Text(
+                    'Sugestão mais próxima',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Opacity(
+                    opacity: 0.6,
+                    child: widgetList(_closestFoods),
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ],
             ),
           ),
@@ -214,7 +251,7 @@ class _MealPageState extends State<MealPage> {
             height: 56,
             child: _submitting
                 ? const Center(child: CircularProgressIndicator())
-                : WidgetButton(onSubmit: _onSubmit),
+                : WidgetButton(onSubmit: _onSubmit, label: 'Log'),
           ),
         ),
       ],

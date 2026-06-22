@@ -3,7 +3,13 @@ import 'package:flutter/material.dart';
 
 class WidgetButton extends StatelessWidget {
   final VoidCallback onSubmit;
-  const WidgetButton({super.key, required this.onSubmit});
+  final String label;
+
+  const WidgetButton({
+    super.key,
+    required this.onSubmit,
+    this.label = 'Save',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,14 +22,10 @@ class WidgetButton extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           elevation: 0,
         ),
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Food added (dummy action).')),
-          );
-        },
-        child: const Text(
-          'Add',
-          style: TextStyle(
+        onPressed: onSubmit,
+        child: Text(
+          label,
+          style: const TextStyle(
             color: KColors.baseBg,
             fontSize: KFont.fontSizeButton,
             fontFamily: KFont.fontFamilyButton,

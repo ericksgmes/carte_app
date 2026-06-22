@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 
 class Allergen {
+  /// Slug textual usado para ícone/cor e como chave de seleção (ex.: 'gluten').
   final String id;
+
+  /// ID numérico vindo do banco de dados (null em mocks/testes legados).
+  /// Obrigatório para enviar ao backend na criação de refeições.
+  final int? numericId;
+
   final String description;
   final String iconName;
   final Color color;
 
   const Allergen({
     required this.id,
+    this.numericId,
     required this.description,
     required this.iconName,
     required this.color,
@@ -16,8 +23,8 @@ class Allergen {
   /// Constrói um Allergen a partir do JSON da API.
   ///
   /// O servidor retorna {id: int, description: String}.
-  /// Usamos [description] como chave de slug (ex.: 'gluten', 'milk')
-  /// e resolvemos ícone/cor localmente, sem depender de campos extras da API.
+  /// Usamos [description] como slug para ícone/cor e armazenamos o
+  /// id numérico em [numericId] para enviar ao backend.
   ///
   /// Também aceita o formato legado {id: String, colorHash, iconName}
   /// para manter compatibilidade com mocks e testes existentes.
@@ -26,24 +33,22 @@ class Allergen {
       throw const FormatException('Campos obrigatórios ausentes em Allergen');
     }
 
-    // O id pode vir como int (API) ou String (mocks/testes legados)
-    final String id = json['id'] is int
-        ? (json['description'] as String)       // usa description como slug
-        : json['id'] as String;
-
     final String description = json['description'] as String;
+
+    // O id pode vir como int (API REST) ou String (mocks/testes legados).
+    final int? numericId = json['id'] is int ? json['id'] as int : null;
+    final String id = json['id'] is int ? description : json['id'] as String;
 
     // Campos opcionais presentes apenas no formato legado (mocks / testes)
     final String? colorHashRaw = json['colorHash'] as String?;
-    final String iconName =
-        json['iconName'] as String? ?? _defaultIcon(id);
-
+    final String iconName = json['iconName'] as String? ?? _defaultIcon(id);
     final Color color = colorHashRaw != null
         ? Color(int.parse(colorHashRaw.replaceFirst('#', '0xff')))
         : _defaultColor(id);
 
     return Allergen(
       id: id,
+      numericId: numericId,
       description: description,
       iconName: iconName,
       color: color,
@@ -52,6 +57,7 @@ class Allergen {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'numericId': numericId,
         'description': description,
         'iconName': iconName,
         'colorHash': '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
@@ -59,12 +65,14 @@ class Allergen {
 
   Allergen copyWith({
     String? id,
+    int? numericId,
     String? description,
     String? iconName,
     Color? color,
   }) {
     return Allergen(
       id: id ?? this.id,
+      numericId: numericId ?? this.numericId,
       description: description ?? this.description,
       iconName: iconName ?? this.iconName,
       color: color ?? this.color,
@@ -78,7 +86,7 @@ class Allergen {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'Allergen($id)';
+  String toString() => 'Allergen($id, numericId=$numericId)';
 }
 
 // ---------------------------------------------------------------------------

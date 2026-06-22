@@ -112,7 +112,7 @@ class _SymptomPageState extends State<SymptomPage> {
             height: 56,
             child: _submitting
                 ? const Center(child: CircularProgressIndicator())
-                : WidgetButton(onSubmit: _onSubmit),
+                : WidgetButton(onSubmit: _onSubmit, label: 'Log'),
           ),
         ),
       ],

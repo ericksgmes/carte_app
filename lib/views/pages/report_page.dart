@@ -114,36 +114,42 @@ class _ReportPageState extends State<ReportPage> {
           const SizedBox(height: 24),
 
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _RangeButton(
-                label: '7 days',
-                onTap: () {
-                  setState(() {
-                    toDate = DateTime.now();
-                    fromDate = DateTime.now().subtract(const Duration(days: 7));
-                  });
-                },
+              Expanded(
+                child: _RangeButton(
+                  label: '7 days',
+                  onTap: () {
+                    setState(() {
+                      toDate = DateTime.now();
+                      fromDate =
+                          DateTime.now().subtract(const Duration(days: 7));
+                    });
+                  },
+                ),
               ),
-              _RangeButton(
-                label: '30 days',
-                onTap: () {
-                  setState(() {
-                    toDate = DateTime.now();
-                    fromDate =
-                        DateTime.now().subtract(const Duration(days: 30));
-                  });
-                },
+              Expanded(
+                child: _RangeButton(
+                  label: '30 days',
+                  onTap: () {
+                    setState(() {
+                      toDate = DateTime.now();
+                      fromDate =
+                          DateTime.now().subtract(const Duration(days: 30));
+                    });
+                  },
+                ),
               ),
-              _RangeButton(
-                label: '90 days',
-                onTap: () {
-                  setState(() {
-                    toDate = DateTime.now();
-                    fromDate =
-                        DateTime.now().subtract(const Duration(days: 90));
-                  });
-                },
+              Expanded(
+                child: _RangeButton(
+                  label: '90 days',
+                  onTap: () {
+                    setState(() {
+                      toDate = DateTime.now();
+                      fromDate =
+                          DateTime.now().subtract(const Duration(days: 90));
+                    });
+                  },
+                ),
               ),
             ],
           ),
@@ -229,13 +235,22 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Widget _buildSummary(ReportResult result) {
-    // Top 5 allergens by frequency
     final topAllergens = result.allergenFrequency.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    final top5 = topAllergens.take(5).toList();
+    final top5Allergens = topAllergens.take(5).toList();
+
+    final topSymptoms = result.symptomFrequency.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final top5Symptoms = topSymptoms.take(5).toList();
 
     final mealLabel =
         result.mealCount == 1 ? '1 meal logged' : '${result.mealCount} meals logged';
+    final pairCount = result.pairs.length;
+    final correlationLabel = pairCount == 0
+        ? 'No symptom correlations found'
+        : pairCount == 1
+            ? '1 symptom correlation found'
+            : '$pairCount symptom correlations found';
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -265,11 +280,20 @@ class _ReportPageState extends State<ReportPage> {
               fontFamily: KFont.fontFamilyContent,
             ),
           ),
+          const SizedBox(height: 4),
+          Text(
+            correlationLabel,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 14,
+              fontFamily: KFont.fontFamilyContent,
+            ),
+          ),
           const SizedBox(height: 18),
 
-          if (top5.isNotEmpty) ...[
+          if (top5Symptoms.isNotEmpty) ...[
             const Text(
-              'Top occurrences',
+              'Symptoms correlated',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -280,7 +304,30 @@ class _ReportPageState extends State<ReportPage> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: top5
+              children: top5Symptoms
+                  .map((e) => _AllergenChip(
+                        label: '${e.key} (×${e.value})',
+                        color: Colors.orange.shade100,
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 18),
+          ],
+
+          if (top5Allergens.isNotEmpty) ...[
+            const Text(
+              'Top allergens',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontFamily: KFont.fontFamilyContentMedium,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: top5Allergens
                   .map((e) => _AllergenChip(label: e.key))
                   .toList(),
             ),
@@ -306,24 +353,22 @@ class _RangeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: GestureDetector(
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFAED1DF),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontFamily: KFont.fontFamilyButton,
-                color: Colors.black87,
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFAED1DF),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontFamily: KFont.fontFamilyButton,
+              color: Colors.black87,
             ),
           ),
         ),
@@ -337,15 +382,16 @@ class _RangeButton extends StatelessWidget {
 // --------------------------------------------
 class _AllergenChip extends StatelessWidget {
   final String label;
+  final Color? color;
 
-  const _AllergenChip({required this.label});
+  const _AllergenChip({required this.label, this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: color ?? Colors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(

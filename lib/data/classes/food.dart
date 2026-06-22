@@ -1,10 +1,11 @@
 import 'allergen.dart';
 
 class Food {
+  final int? id;
   final String description;
   final List<Allergen> allergens;
 
-  const Food({required this.description, required this.allergens});
+  const Food({this.id, required this.description, required this.allergens});
 
   /// Conveniência: retorna o primeiro alérgeno ou null.
   Allergen? get primaryAllergen =>
@@ -17,32 +18,32 @@ class Food {
 
     final List<Allergen> allergens;
 
-    // Suporta tanto o formato legado {allergen: {...}} quanto o novo
-    // {allergens: [...]} que a API agora retorna.
     if (json.containsKey('allergens') && json['allergens'] is List) {
       allergens = (json['allergens'] as List)
           .map((e) => Allergen.fromJson(e as Map<String, dynamic>))
           .toList();
     } else if (json.containsKey('allergen') && json['allergen'] is Map) {
-      // Formato legado: allergen único aninhado (mocks / testes antigos)
       allergens = [Allergen.fromJson(json['allergen'] as Map<String, dynamic>)];
     } else {
       allergens = [];
     }
 
     return Food(
+      id: json['id'] as int?,
       description: json['description'] as String,
       allergens: allergens,
     );
   }
 
   Map<String, dynamic> toJson() => {
+        'id': id,
         'description': description,
         'allergens': allergens.map((a) => a.toJson()).toList(),
       };
 
-  Food copyWith({String? description, List<Allergen>? allergens}) {
+  Food copyWith({int? id, String? description, List<Allergen>? allergens}) {
     return Food(
+      id: id ?? this.id,
       description: description ?? this.description,
       allergens: allergens ?? this.allergens,
     );
@@ -51,11 +52,12 @@ class Food {
   @override
   bool operator ==(Object other) =>
       other is Food &&
+      other.id == id &&
       other.description == description &&
       _listEquals(other.allergens, allergens);
 
   @override
-  int get hashCode => Object.hash(description, Object.hashAll(allergens));
+  int get hashCode => Object.hash(id, description, Object.hashAll(allergens));
 }
 
 bool _listEquals<T>(List<T> a, List<T> b) {

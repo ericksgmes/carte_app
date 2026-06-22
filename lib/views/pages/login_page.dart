@@ -124,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   )
                                 : const Text(
-                                    'Enter',
+                                    'Sign up',
                                     style: TextStyle(
                                       color: KColors.baseBg,
                                       fontSize: KFont.fontSizeButton,

@@ -1,5 +1,5 @@
 import 'package:carte_app/data/constants.dart';
-import 'package:carte_app/views/pages/login_page.dart';
+import 'package:carte_app/views/pages/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:carte_app/data/notifiers.dart';
 
@@ -33,7 +33,7 @@ class CarteApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: theme,
-          home: const LoginPage(),
+          home: const SplashPage(),
         );
       },
     );
